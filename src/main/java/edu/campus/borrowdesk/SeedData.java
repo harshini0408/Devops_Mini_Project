@@ -32,27 +32,43 @@ public class SeedData {
 		};
 	}
 
-	/** Seeds default demo admin and student accounts only when the user table is empty. */
+	/** Seeds default demo admin and student accounts. */
 	@Bean
 	CommandLineRunner seedUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		return args -> {
-			if (userRepository.count() == 0) {
+			// Remove previously created demo student accounts if present
+			userRepository.findByUsername("student").ifPresent(userRepository::delete);
+			userRepository.findByUsername("student2").ifPresent(userRepository::delete);
+
+			// Admin account remains the same
+			if (userRepository.findByUsername("admin").isEmpty()) {
 				String adminPass = System.getenv("BORROWDESK_ADMIN_PASSWORD");
 				if (adminPass == null || adminPass.isBlank()) {
 					adminPass = "admin123";
 				}
-
-				String studentPass = System.getenv("BORROWDESK_STUDENT_PASSWORD");
-				if (studentPass == null || studentPass.isBlank()) {
-					studentPass = "student123";
-				}
-
-				userRepository.saveAll(List.of(
-					new User("admin", "Lab Administrator", "ADMIN001", passwordEncoder.encode(adminPass), "ROLE_ADMIN"),
-					new User("student", "Akshitha Sharma", "21CS001", passwordEncoder.encode(studentPass), "ROLE_STUDENT"),
-					new User("student2", "Rahul Verma", "21CS002", passwordEncoder.encode(studentPass), "ROLE_STUDENT")
-				));
+				userRepository.save(new User("admin", "Lab Administrator", "ADMIN001", passwordEncoder.encode(adminPass), "ROLE_ADMIN"));
 			}
+
+			// Student accounts: akshita, abi, shiva, shri
+			syncStudent(userRepository, passwordEncoder, "akshita", "akshita", "21CS001", "akshita123");
+			syncStudent(userRepository, passwordEncoder, "abi", "abi", "21CS002", "abi123");
+			syncStudent(userRepository, passwordEncoder, "shiva", "shiva", "21CS003", "shiva123");
+			syncStudent(userRepository, passwordEncoder, "shri", "shri", "21CS004", "shri123");
 		};
+	}
+
+	private void syncStudent(UserRepository userRepository, PasswordEncoder passwordEncoder,
+			String username, String fullName, String registerNumber, String rawPassword) {
+		User user = userRepository.findByUsername(username).orElse(null);
+		if (user == null) {
+			userRepository.save(new User(username, fullName, registerNumber, passwordEncoder.encode(rawPassword), "ROLE_STUDENT"));
+		} else {
+			user.setFullName(fullName);
+			user.setRegisterNumber(registerNumber);
+			user.setPasswordHash(passwordEncoder.encode(rawPassword));
+			user.setRole("ROLE_STUDENT");
+			user.setEnabled(true);
+			userRepository.save(user);
+		}
 	}
 }

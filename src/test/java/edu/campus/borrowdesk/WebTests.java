@@ -51,8 +51,8 @@ class WebTests {
 		equipmentRepository.deleteAll();
 		userRepository.deleteAll();
 
-		userRepository.save(new User("student", "Akshitha Sharma", "21CS001",
-				passwordEncoder.encode("student123"), "ROLE_STUDENT"));
+		userRepository.save(new User("akshita", "akshita", "21CS001",
+				passwordEncoder.encode("akshita123"), "ROLE_STUDENT"));
 		userRepository.save(new User("admin", "Lab Administrator", "ADMIN001",
 				passwordEncoder.encode("admin123"), "ROLE_ADMIN"));
 	}
@@ -80,7 +80,7 @@ class WebTests {
 	}
 
 	@Test
-	@WithMockUser(username = "student", roles = "STUDENT")
+	@WithMockUser(username = "akshita", roles = "STUDENT")
 	void studentPagesRender() throws Exception {
 		for (String path : new String[] { "/student/dashboard", "/student/equipment", "/student/request", "/student/requests", "/student/loans", "/student/history" }) {
 			mvc.perform(get(path)).andExpect(status().isOk());

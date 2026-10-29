@@ -63,17 +63,17 @@ class SecurityAndWorkflowTests {
 
 		userRepository.save(new User("admin", "Lab Administrator", "ADMIN001",
 				passwordEncoder.encode("admin123"), "ROLE_ADMIN"));
-		userRepository.save(new User("student", "Akshitha Sharma", "21CS001",
-				passwordEncoder.encode("student123"), "ROLE_STUDENT"));
-		userRepository.save(new User("student2", "Rahul Verma", "21CS002",
-				passwordEncoder.encode("student123"), "ROLE_STUDENT"));
+		userRepository.save(new User("akshita", "akshita", "21CS001",
+				passwordEncoder.encode("akshita123"), "ROLE_STUDENT"));
+		userRepository.save(new User("abi", "abi", "21CS002",
+				passwordEncoder.encode("abi123"), "ROLE_STUDENT"));
 
 		projector = equipmentRepository.save(new Equipment("Lab Projector", 2));
 	}
 
 	@Test
 	void validStudentLoginRedirectsToStudentDashboard() throws Exception {
-		mvc.perform(formLogin().user("student").password("student123"))
+		mvc.perform(formLogin().user("akshita").password("akshita123"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("/student/dashboard"));
 	}
@@ -87,7 +87,7 @@ class SecurityAndWorkflowTests {
 
 	@Test
 	void invalidCredentialsRedirectsToLoginError() throws Exception {
-		mvc.perform(formLogin().user("student").password("wrong-password"))
+		mvc.perform(formLogin().user("akshita").password("wrong-password"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("/login?error"));
 	}
@@ -111,7 +111,7 @@ class SecurityAndWorkflowTests {
 	}
 
 	@Test
-	@WithMockUser(username = "student", roles = "STUDENT")
+	@WithMockUser(username = "akshita", roles = "STUDENT")
 	void studentCannotAccessAdminRoutes() throws Exception {
 		mvc.perform(get("/admin/dashboard")).andExpect(status().isForbidden());
 		mvc.perform(get("/admin/equipment")).andExpect(status().isForbidden());
@@ -119,14 +119,14 @@ class SecurityAndWorkflowTests {
 	}
 
 	@Test
-	@WithMockUser(username = "student", roles = "STUDENT")
+	@WithMockUser(username = "akshita", roles = "STUDENT")
 	void studentCannotApproveOrRejectRequests() throws Exception {
 		mvc.perform(post("/admin/requests/1/approve").with(csrf())).andExpect(status().isForbidden());
 		mvc.perform(post("/admin/requests/1/reject").with(csrf())).andExpect(status().isForbidden());
 	}
 
 	@Test
-	@WithMockUser(username = "student", roles = "STUDENT")
+	@WithMockUser(username = "akshita", roles = "STUDENT")
 	void studentSubmitRequestWorkflow() throws Exception {
 		// Valid request
 		mvc.perform(post("/student/request")
@@ -144,7 +144,7 @@ class SecurityAndWorkflowTests {
 	}
 
 	@Test
-	@WithMockUser(username = "student", roles = "STUDENT")
+	@WithMockUser(username = "akshita", roles = "STUDENT")
 	void studentPastDueDateRequestRejectedWithFriendlyError() throws Exception {
 		mvc.perform(post("/student/request")
 				.with(csrf())
@@ -158,7 +158,7 @@ class SecurityAndWorkflowTests {
 	@WithMockUser(username = "admin", roles = "ADMIN")
 	void adminApproveAndReturnWorkflow() throws Exception {
 		BorrowRequest req = borrowRequestRepository.save(
-			new BorrowRequest(projector, "Akshitha Sharma", "21CS001", TODAY, TODAY.plusDays(2), "Lab work")
+			new BorrowRequest(projector, "akshita", "21CS001", TODAY, TODAY.plusDays(2), "Lab work")
 		);
 
 		// Admin approves
@@ -183,11 +183,11 @@ class SecurityAndWorkflowTests {
 	}
 
 	@Test
-	@WithMockUser(username = "student", roles = "STUDENT")
+	@WithMockUser(username = "akshita", roles = "STUDENT")
 	void studentOnlyViewsOwnData() throws Exception {
-		// Create request for student (21CS001) and student2 (21CS002)
-		borrowRequestRepository.save(new BorrowRequest(projector, "Student 1", "21CS001", TODAY, TODAY.plusDays(2), "Mine"));
-		borrowRequestRepository.save(new BorrowRequest(projector, "Student 2", "21CS002", TODAY, TODAY.plusDays(2), "Other"));
+		// Create request for akshita (21CS001) and abi (21CS002)
+		borrowRequestRepository.save(new BorrowRequest(projector, "akshita", "21CS001", TODAY, TODAY.plusDays(2), "Mine"));
+		borrowRequestRepository.save(new BorrowRequest(projector, "abi", "21CS002", TODAY, TODAY.plusDays(2), "Other"));
 
 		// student visits /student/requests
 		mvc.perform(get("/student/requests"))
