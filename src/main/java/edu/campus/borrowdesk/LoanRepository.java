@@ -20,6 +20,16 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
 	List<Loan> findTop50ByOrderByIdDesc();
 
+	List<Loan> findByRegisterNumberAndReturnedDateIsNullOrderByDueDateAsc(String registerNumber);
+
+	List<Loan> findByRegisterNumberAndReturnedDateIsNotNullOrderByReturnedDateDesc(String registerNumber);
+
+	long countByRegisterNumberAndReturnedDateIsNull(String registerNumber);
+
+	long countByRegisterNumberAndReturnedDateIsNotNull(String registerNumber);
+
+	long countByReturnedDateIsNullAndDueDateBefore(java.time.LocalDate date);
+
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("select l from Loan l where l.id = :id")
 	Optional<Loan> findForUpdate(@Param("id") Long id);

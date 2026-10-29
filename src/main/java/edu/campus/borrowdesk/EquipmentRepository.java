@@ -14,6 +14,8 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
 
 	List<Equipment> findAllByOrderByNameAsc();
 
+	Optional<Equipment> findByNameIgnoreCase(String name);
+
 	/** Row lock so two concurrent issues cannot both take the last item. */
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("select e from Equipment e where e.id = :id")

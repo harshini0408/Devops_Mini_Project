@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Request Equipment')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('request')}"></header>
+
+<main class="container narrow">
+  <h1>Submit Equipment Request</h1>
+  <p class="subtitle">Borrowing requests are reviewed and approved by the lab administrator.</p>
+
+  <div class="alert alert-error" th:if="${#fields.hasErrors('form')}">
+    <p th:each="err : ${#fields.allErrors('form')}" th:text="${err}">Error</p>
+  </div>
+
+  <form th:action="@{/student/request}" th:object="${form}" method="post" class="form">
+    <label>Student Name</label>
+    <input type="text" th:value="${student.fullName}" readonly disabled class="input-readonly">
+
+    <label>Register Number</label>
+    <input type="text" th:value="${student.registerNumber}" readonly disabled class="input-readonly">
+
+    <label for="equipmentId">Choose Equipment Item</label>
+    <select id="equipmentId" th:field="*{equipmentId}">
+      <option value="">-- Select an equipment item --</option>
+      <option th:each="s : ${stock}"
+              th:value="${s.id}"
+              th:text="${s.name} + ' (' + ${s.available} + ' available)'"
+              th:disabled="${s.available == 0}">Projector</option>
+    </select>
+    <div class="field-error" th:errors="*{equipmentId}"></div>
+
+    <label for="dueDate">Required Due Date</label>
+    <input type="date" id="dueDate" th:field="*{dueDate}">
+    <div class="field-error" th:errors="*{dueDate}"></div>
+
+    <label for="reason">Reason for Borrowing (Optional)</label>
+    <textarea id="reason" th:field="*{reason}" rows="3" placeholder="e.g. For Final Year Project demonstration"></textarea>
+    <div class="field-error" th:errors="*{reason}"></div>
+
+    <button type="submit" class="button">Submit Request</button>
+  </form>
+</main>
+</body>
+</html>

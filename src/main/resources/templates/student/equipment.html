@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Equipment Catalog')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('equipment')}"></header>
+
+<main class="container">
+  <div class="welcome-banner">
+    <div>
+      <h1>Equipment Catalog</h1>
+      <p class="subtitle">Browse available lab items and submit borrowing requests</p>
+    </div>
+    <div>
+      <a th:href="@{/student/request}" class="button">Submit Request</a>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Equipment Name</th>
+          <th class="num">Total Stock</th>
+          <th class="num">Available</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="s : ${stock}">
+          <td><strong th:text="${s.name}">Projector</strong></td>
+          <td class="num" th:text="${s.totalQuantity}">3</td>
+          <td class="num" th:text="${s.available}">2</td>
+          <td>
+            <span class="badge badge-ok" th:if="${s.available > 0}">Available</span>
+            <span class="badge badge-out" th:unless="${s.available > 0}">Out of stock</span>
+          </td>
+          <td>
+            <a th:if="${s.available > 0}" th:href="@{/student/request(equipmentId=${s.id})}" class="button button-small">Request</a>
+            <span th:unless="${s.available > 0}" class="muted">Unavailable</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

@@ -26,13 +26,24 @@ class LendingServiceTests {
 	@Autowired
 	LoanRepository loanRepository;
 
+	@Autowired
+	BorrowRequestRepository borrowRequestRepository;
+
+	@Autowired
+	UserRepository userRepository;
+
 	Equipment projector;
+	User studentUser;
 
 	@BeforeEach
 	void setUp() {
+		borrowRequestRepository.deleteAll();
 		loanRepository.deleteAll();
 		equipmentRepository.deleteAll();
+		userRepository.deleteAll();
+
 		projector = equipmentRepository.save(new Equipment("Test Projector", 1));
+		studentUser = userRepository.save(new User("asha", "Asha Sharma", "21CS001", "hash", "ROLE_STUDENT"));
 	}
 
 	private long available() {
@@ -127,5 +138,88 @@ class LendingServiceTests {
 	void returningUnknownLoanIsRejected() {
 		assertThatThrownBy(() -> service.returnLoan(999_999L)).isInstanceOf(LendingException.class)
 			.hasMessageContaining("does not exist");
+	}
+
+	@Test
+	void adminCanAddAndEditEquipment() {
+		Equipment eq = service.addEquipment("Digital Oscilloscope", 5);
+		assertThat(eq.getId()).isNotNull();
+		assertThat(eq.getName()).isEqualTo("Digital Oscilloscope");
+		assertThat(eq.getTotalQuantity()).isEqualTo(5);
+
+		// Duplicate equipment name rejection
+		assertThatThrownBy(() -> service.addEquipment("digital oscilloscope", 2))
+			.isInstanceOf(LendingException.class)
+			.hasMessageContaining("already exists");
+
+		// Edit equipment
+		Equipment updated = service.updateEquipment(eq.getId(), "Digital Oscilloscope Pro", 8);
+		assertThat(updated.getName()).isEqualTo("Digital Oscilloscope Pro");
+		assertThat(updated.getTotalQuantity()).isEqualTo(8);
+	}
+
+	@Test
+	void cannotReduceTotalQuantityBelowActiveLoans() {
+		Equipment mult = service.addEquipment("Multimeter", 2);
+		service.issue("Asha", "21CS001", mult.getId(), TODAY.plusDays(2));
+		service.issue("Ben", "21CS002", mult.getId(), TODAY.plusDays(2));
+
+		assertThatThrownBy(() -> service.updateEquipment(mult.getId(), "Multimeter", 1))
+			.isInstanceOf(LendingException.class)
+			.hasMessageContaining("active loans");
+	}
+
+	@Test
+	void studentBorrowRequestLifecycle() {
+		// 1. Submit request
+		BorrowRequest req = service.submitRequest("21CS001", projector.getId(), TODAY.plusDays(3), "Lab experiment");
+		assertThat(req.getId()).isNotNull();
+		assertThat(req.getStatus()).isEqualTo(BorrowRequest.STATUS_PENDING);
+		assertThat(service.pendingRequestCount()).isEqualTo(1);
+		// Pending request does NOT reduce availability until approved
+		assertThat(available()).isEqualTo(1);
+
+		// 2. Approve request
+		Loan loan = service.approveRequest(req.getId());
+		assertThat(loan.getId()).isNotNull();
+		assertThat(loan.getEquipment().getId()).isEqualTo(projector.getId());
+		assertThat(available()).isZero();
+		assertThat(service.pendingRequestCount()).isZero();
+
+		// Duplicate approval rejected
+		assertThatThrownBy(() -> service.approveRequest(req.getId()))
+			.isInstanceOf(LendingException.class)
+			.hasMessageContaining("already been processed");
+
+		// 3. Return loan restores availability
+		service.returnLoan(loan.getId());
+		assertThat(available()).isEqualTo(1);
+	}
+
+	@Test
+	void adminRejectionDoesNotAlterAvailability() {
+		BorrowRequest req = service.submitRequest("21CS001", projector.getId(), TODAY.plusDays(2), "Project work");
+		assertThat(available()).isEqualTo(1);
+
+		BorrowRequest rejected = service.rejectRequest(req.getId(), "Reserved for semester exams");
+		assertThat(rejected.getStatus()).isEqualTo(BorrowRequest.STATUS_REJECTED);
+		assertThat(rejected.getAdminDecision()).isEqualTo("Reserved for semester exams");
+		assertThat(available()).isEqualTo(1);
+		assertThat(service.activeLoanCount()).isZero();
+	}
+
+	@Test
+	void cannotApproveWhenStockBecomesExhausted() {
+		// Create request when available
+		BorrowRequest req = service.submitRequest("21CS001", projector.getId(), TODAY.plusDays(2), "Class demo");
+
+		// Stock gets taken by direct issue or another approval
+		service.issue("Other Student", "21CS999", projector.getId(), TODAY.plusDays(1));
+		assertThat(available()).isZero();
+
+		// Approving the pending request must fail
+		assertThatThrownBy(() -> service.approveRequest(req.getId()))
+			.isInstanceOf(LendingException.class)
+			.hasMessageContaining("available");
 	}
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:fragment="head(title)">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,14 +9,43 @@
 <body>
 <header th:fragment="nav(active)" class="topbar">
   <div class="container topbar-inner">
-    <a class="brand" th:href="@{/}">BorrowDesk</a>
-    <nav>
-      <a th:href="@{/}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
-      <a th:href="@{/equipment}" th:classappend="${active == 'equipment'} ? 'active'">Equipment</a>
-      <a th:href="@{/issue}" th:classappend="${active == 'issue'} ? 'active'">Issue</a>
-      <a th:href="@{/loans}" th:classappend="${active == 'loans'} ? 'active'">Active loans</a>
-      <a th:href="@{/history}" th:classappend="${active == 'history'} ? 'active'">History</a>
+    <div class="topbar-left">
+      <a class="brand" th:href="@{/}">
+        <span class="brand-tag">BD</span>
+        BorrowDesk
+      </a>
+    </div>
+
+    <!-- Admin Navigation -->
+    <nav sec:authorize="hasRole('ADMIN')">
+      <a th:href="@{/admin/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
+      <a th:href="@{/admin/equipment}" th:classappend="${active == 'equipment'} ? 'active'">Manage Equipment</a>
+      <a th:href="@{/admin/requests}" th:classappend="${active == 'requests'} ? 'active'">Pending Requests</a>
+      <a th:href="@{/admin/loans}" th:classappend="${active == 'loans'} ? 'active'">Active Loans</a>
+      <a th:href="@{/admin/history}" th:classappend="${active == 'history'} ? 'active'">History</a>
     </nav>
+
+    <!-- Student Navigation -->
+    <nav sec:authorize="hasRole('STUDENT')">
+      <a th:href="@{/student/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
+      <a th:href="@{/student/equipment}" th:classappend="${active == 'equipment'} ? 'active'">Browse Catalog</a>
+      <a th:href="@{/student/request}" th:classappend="${active == 'request'} ? 'active'">Request Item</a>
+      <a th:href="@{/student/requests}" th:classappend="${active == 'requests'} ? 'active'">My Requests</a>
+      <a th:href="@{/student/loans}" th:classappend="${active == 'loans'} ? 'active'">My Active Loans</a>
+      <a th:href="@{/student/history}" th:classappend="${active == 'history'} ? 'active'">My History</a>
+    </nav>
+
+    <!-- User Info & Logout -->
+    <div class="topbar-right" sec:authorize="isAuthenticated()">
+      <span class="user-pill">
+        <span class="user-name" sec:authentication="name">User</span>
+        <span class="user-role" sec:authorize="hasRole('ADMIN')">Admin</span>
+        <span class="user-role" sec:authorize="hasRole('STUDENT')">Student</span>
+      </span>
+      <form th:action="@{/logout}" method="post" class="logout-form">
+        <button type="submit" class="button-logout" title="Sign out">Logout</button>
+      </form>
+    </div>
   </div>
 </header>
 </body>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Pending Requests')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('requests')}"></header>
+
+<main class="container">
+  <h1>Student Borrowing Requests</h1>
+  <p class="subtitle">Review, approve, or reject student equipment requests</p>
+
+  <div class="alert alert-ok" th:if="${message}" th:text="${message}"></div>
+  <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Req ID</th>
+          <th>Student</th>
+          <th>Register No.</th>
+          <th>Equipment Item</th>
+          <th>Requested Date</th>
+          <th>Due Date</th>
+          <th>Reason</th>
+          <th>Administrative Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="r : ${requests}">
+          <td><strong th:text="'#' + ${r.id}">#1</strong></td>
+          <td th:text="${r.studentName}">Student</td>
+          <td th:text="${r.registerNumber}">REG</td>
+          <td><strong th:text="${r.equipment.name}">Projector</strong></td>
+          <td th:text="${r.requestedDate}">2026-01-01</td>
+          <td th:text="${r.dueDate}">2026-01-05</td>
+          <td>
+            <span th:if="${r.reason != null and !r.reason.isEmpty()}" th:text="${r.reason}">Reason</span>
+            <span th:unless="${r.reason != null and !r.reason.isEmpty()}" class="muted">&mdash;</span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <form th:action="@{/admin/requests/{id}/approve(id=${r.id})}" method="post">
+                <button type="submit" class="button button-small button-ok">Approve &amp; Issue</button>
+              </form>
+              <form th:action="@{/admin/requests/{id}/reject(id=${r.id})}" method="post" class="form-inline">
+                <input type="hidden" name="reason" value="Rejected by lab administrator">
+                <button type="submit" class="button button-small button-danger">Reject</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(requests)}">
+          <td colspan="8" class="empty">No pending borrowing requests. All requests have been reviewed!</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

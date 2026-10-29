@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Borrowing History')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('history')}"></header>
+
+<main class="container">
+  <h1>Complete Borrowing History</h1>
+  <p class="subtitle">Log of recent 50 completed and active equipment loans</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Loan ID</th>
+          <th>Equipment</th>
+          <th>Student</th>
+          <th>Register No.</th>
+          <th>Issued</th>
+          <th>Due</th>
+          <th>Returned</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="l : ${loans}">
+          <td th:text="'#' + ${l.id}">#1</td>
+          <td><strong th:text="${l.equipment.name}">Projector</strong></td>
+          <td th:text="${l.studentName}">Student</td>
+          <td th:text="${l.registerNumber}">REG</td>
+          <td th:text="${l.issuedDate}">2026-01-01</td>
+          <td th:text="${l.dueDate}">2026-01-05</td>
+          <td>
+            <span th:if="${l.returnedDate}" th:text="${l.returnedDate}">2026-01-04</span>
+            <span th:unless="${l.returnedDate}" class="muted">&mdash;</span>
+          </td>
+          <td>
+            <span class="badge badge-ok" th:if="${l.returnedDate}">Returned</span>
+            <span class="badge badge-pending" th:unless="${l.returnedDate}">Active Loan</span>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(loans)}">
+          <td colspan="8" class="empty">No borrowing history recorded yet.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

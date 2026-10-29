@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Equipment Management')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('equipment')}"></header>
+
+<main class="container">
+  <div class="welcome-banner">
+    <div>
+      <h1>Equipment Inventory Management</h1>
+      <p class="subtitle">Add new lab equipment, adjust total quantities, and inspect stock</p>
+    </div>
+  </div>
+
+  <div class="alert alert-ok" th:if="${message}" th:text="${message}"></div>
+  <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+  <div class="grid-2">
+    <!-- Equipment List -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="num">Total</th>
+            <th class="num">Available</th>
+            <th>Edit Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="s : ${stock}">
+            <td>
+              <strong th:text="${s.name}">Projector</strong>
+              <div class="muted small" th:text="'ID: #' + ${s.id}">ID: #1</div>
+            </td>
+            <td class="num" th:text="${s.totalQuantity}">3</td>
+            <td class="num">
+              <span class="badge badge-ok" th:if="${s.available > 0}" th:text="${s.available}">3</span>
+              <span class="badge badge-out" th:unless="${s.available > 0}">0</span>
+            </td>
+            <td>
+              <form th:action="@{/admin/equipment/{id}/update(id=${s.id})}" method="post" class="form-inline">
+                <input type="hidden" name="name" th:value="${s.name}">
+                <input type="number" name="totalQuantity" th:value="${s.totalQuantity}" min="0" class="input-qty" required>
+                <button type="submit" class="button button-small">Update</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Add New Equipment Card -->
+    <div>
+      <div class="form">
+        <h2>Add New Equipment</h2>
+        <p class="muted">Add a new item to the campus lab lending inventory</p>
+
+        <form th:action="@{/admin/equipment}" method="post">
+          <label for="eqName">Equipment Name</label>
+          <input type="text" id="eqName" name="name" placeholder="e.g. Oscilloscope" required>
+
+          <label for="eqQty">Total Units Quantity</label>
+          <input type="number" id="eqQty" name="totalQuantity" min="1" value="1" required>
+
+          <button type="submit" class="button" style="margin-top: 1rem;">Add Equipment</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

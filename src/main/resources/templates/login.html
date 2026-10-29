@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login · BorrowDesk</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-body">
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-badge">BD</div>
+      <h1>BorrowDesk</h1>
+      <p class="auth-subtitle">Campus Equipment Lending System</p>
+    </div>
+
+    <div class="alert alert-error" th:if="${param.error}">
+      Invalid username, register number, or password. Please try again.
+    </div>
+
+    <div class="alert alert-ok" th:if="${param.logout}">
+      You have been successfully logged out.
+    </div>
+
+    <form th:action="@{/login}" method="post" class="form auth-form">
+      <label for="username">Username or Register Number</label>
+      <input type="text" id="username" name="username" placeholder="e.g. admin or 21CS001" required autofocus>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+      <button type="submit" class="button button-block">Sign in</button>
+    </form>
+
+    <div class="demo-box">
+      <strong>Academic Demo Credentials:</strong>
+      <ul>
+        <li><strong>Admin:</strong> <code>admin</code> / <code>admin123</code></li>
+        <li><strong>Student 1:</strong> <code>student</code> (or <code>21CS001</code>) / <code>student123</code></li>
+        <li><strong>Student 2:</strong> <code>student2</code> (or <code>21CS002</code>) / <code>student123</code></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>

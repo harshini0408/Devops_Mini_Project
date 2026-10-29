@@ -5,9 +5,10 @@ import java.time.LocalDate;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,7 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class BorrowDeskController {
 
-	/** Form-backing object for the issue page. */
+	/** Form-backing object for the legacy direct issue page. */
 	public static class IssueForm {
 
 		@NotBlank(message = "Student name is required.")
@@ -31,10 +32,10 @@ public class BorrowDeskController {
 		@Size(max = 30, message = "Register number is too long.")
 		private String registerNumber;
 
-		@NotNull(message = "Please choose an equipment item.")
+		@jakarta.validation.constraints.NotNull(message = "Please choose an equipment item.")
 		private Long equipmentId;
 
-		@NotNull(message = "Due date is required.")
+		@jakarta.validation.constraints.NotNull(message = "Due date is required.")
 		private LocalDate dueDate;
 
 		public String getStudentName() {
@@ -80,10 +81,18 @@ public class BorrowDeskController {
 	}
 
 	@GetMapping("/")
-	public String dashboard(Model model) {
-		model.addAttribute("equipmentCount", lendingService.equipmentCount());
-		model.addAttribute("activeLoanCount", lendingService.activeLoanCount());
-		return "dashboard";
+	public String root(Authentication authentication) {
+		if (authentication != null && authentication.isAuthenticated()) {
+			for (GrantedAuthority auth : authentication.getAuthorities()) {
+				if ("ROLE_ADMIN".equals(auth.getAuthority())) {
+					return "redirect:/admin/dashboard";
+				}
+				if ("ROLE_STUDENT".equals(auth.getAuthority())) {
+					return "redirect:/student/dashboard";
+				}
+			}
+		}
+		return "redirect:/login";
 	}
 
 	@GetMapping("/equipment")

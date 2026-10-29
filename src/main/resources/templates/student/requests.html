@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('My Requests')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('requests')}"></header>
+
+<main class="container">
+  <div class="welcome-banner">
+    <div>
+      <h1>My Borrowing Requests</h1>
+      <p class="subtitle">Track the status of all your submitted equipment requests</p>
+    </div>
+    <div>
+      <a th:href="@{/student/request}" class="button">New Request</a>
+    </div>
+  </div>
+
+  <div class="alert alert-ok" th:if="${message}" th:text="${message}"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Req ID</th>
+          <th>Equipment</th>
+          <th>Requested Date</th>
+          <th>Required Due</th>
+          <th>Status</th>
+          <th>Admin Decision / Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="r : ${requests}">
+          <td><strong th:text="'#' + ${r.id}">#1</strong></td>
+          <td th:text="${r.equipment.name}">Projector</td>
+          <td th:text="${r.requestedDate}">2026-01-01</td>
+          <td th:text="${r.dueDate}">2026-01-05</td>
+          <td>
+            <span class="badge badge-pending" th:if="${r.status == 'PENDING'}">PENDING</span>
+            <span class="badge badge-ok" th:if="${r.status == 'APPROVED'}">APPROVED</span>
+            <span class="badge badge-rejected" th:if="${r.status == 'REJECTED'}">REJECTED</span>
+          </td>
+          <td>
+            <span th:if="${r.adminDecision}" th:text="${r.adminDecision}">Decision</span>
+            <span th:unless="${r.adminDecision}" class="muted">Awaiting review</span>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(requests)}">
+          <td colspan="6" class="empty">You have not submitted any borrowing requests yet.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

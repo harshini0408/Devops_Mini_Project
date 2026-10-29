@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Student Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('dashboard')}"></header>
+
+<main class="container">
+  <div class="welcome-banner">
+    <div>
+      <h1>Student Dashboard</h1>
+      <p class="subtitle">Welcome, <strong th:text="${student.fullName}">Student</strong> (<span th:text="${student.registerNumber}">REG</span>)</p>
+    </div>
+    <div>
+      <a th:href="@{/student/request}" class="button">Request Equipment</a>
+    </div>
+  </div>
+
+  <div class="cards">
+    <a th:href="@{/student/equipment}" class="card">
+      <div class="card-number" th:text="${availableTypesCount}">0</div>
+      <div class="card-label">Equipment Types in Catalog</div>
+    </a>
+    <a th:href="@{/student/loans}" class="card">
+      <div class="card-number" th:text="${activeLoansCount}">0</div>
+      <div class="card-label">My Active Loans</div>
+    </a>
+    <a th:href="@{/student/requests}" class="card">
+      <div class="card-number" th:text="${pendingRequestsCount}">0</div>
+      <div class="card-label">My Pending Requests</div>
+    </a>
+    <a th:href="@{/student/history}" class="card">
+      <div class="card-number" th:text="${completedReturnsCount}">0</div>
+      <div class="card-label">My Returned Items</div>
+    </a>
+  </div>
+
+  <section class="section-block">
+    <div class="section-header">
+      <h2>My Currently Active Loans</h2>
+      <a th:href="@{/student/loans}" class="link-more">View all &rarr;</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Equipment</th>
+            <th>Issued Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="l : ${recentLoans}">
+            <td th:text="${l.equipment.name}">Projector</td>
+            <td th:text="${l.issuedDate}">2026-01-01</td>
+            <td th:text="${l.dueDate}">2026-01-05</td>
+            <td>
+              <span class="badge badge-out" th:if="${l.dueDate.isBefore(today)}">Overdue</span>
+              <span class="badge badge-ok" th:unless="${l.dueDate.isBefore(today)}">Active</span>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(recentLoans)}">
+            <td colspan="4" class="empty">You have no active equipment loans right now.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+</body>
+</html>

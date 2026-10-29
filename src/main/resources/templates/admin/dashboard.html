@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Admin Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('dashboard')}"></header>
+
+<main class="container">
+  <div class="welcome-banner">
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p class="subtitle">Campus Equipment Lending Administration &bull; Operator: <strong th:text="${adminUser}">Admin</strong></p>
+    </div>
+    <div class="banner-actions">
+      <a th:href="@{/admin/requests}" class="button button-accent" th:if="${pendingRequestCount > 0}">
+        Review <span th:text="${pendingRequestCount}">0</span> Requests
+      </a>
+      <a th:href="@{/admin/equipment}" class="button">Manage Inventory</a>
+    </div>
+  </div>
+
+  <div class="cards cards-6">
+    <div class="card">
+      <div class="card-number" th:text="${equipmentCount}">0</div>
+      <div class="card-label">Equipment Types</div>
+    </div>
+    <div class="card">
+      <div class="card-number" th:text="${totalUnits}">0</div>
+      <div class="card-label">Total Units in Lab</div>
+    </div>
+    <div class="card">
+      <div class="card-number" th:text="${availableUnits}">0</div>
+      <div class="card-label">Available Units</div>
+    </div>
+    <div class="card">
+      <div class="card-number" th:text="${activeLoanCount}">0</div>
+      <div class="card-label">Active Loans</div>
+    </div>
+    <a th:href="@{/admin/requests}" class="card highlight-card">
+      <div class="card-number" th:text="${pendingRequestCount}">0</div>
+      <div class="card-label">Pending Requests</div>
+    </a>
+    <div class="card">
+      <div class="card-number card-warn" th:text="${overdueCount}">0</div>
+      <div class="card-label">Overdue Loans</div>
+    </div>
+  </div>
+
+  <!-- Pending Requests section -->
+  <section class="section-block">
+    <div class="section-header">
+      <h2>Pending Borrowing Requests</h2>
+      <a th:href="@{/admin/requests}" class="link-more">View all &rarr;</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Student</th>
+            <th>Register No.</th>
+            <th>Equipment</th>
+            <th>Due Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="r : ${pendingRequests}">
+            <td th:text="'#' + ${r.id}">#1</td>
+            <td th:text="${r.studentName}">Student</td>
+            <td th:text="${r.registerNumber}">REG</td>
+            <td><strong th:text="${r.equipment.name}">Projector</strong></td>
+            <td th:text="${r.dueDate}">2026-01-05</td>
+            <td>
+              <div class="action-buttons">
+                <form th:action="@{/admin/requests/{id}/approve(id=${r.id})}" method="post">
+                  <button type="submit" class="button button-small button-ok">Approve &amp; Issue</button>
+                </form>
+                <form th:action="@{/admin/requests/{id}/reject(id=${r.id})}" method="post">
+                  <button type="submit" class="button button-small button-danger">Reject</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(pendingRequests)}">
+            <td colspan="6" class="empty">No pending borrowing requests at this time.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Active Loans section -->
+  <section class="section-block">
+    <div class="section-header">
+      <h2>Currently Active Loans</h2>
+      <a th:href="@{/admin/loans}" class="link-more">Manage loans &rarr;</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Equipment</th>
+            <th>Student</th>
+            <th>Register No.</th>
+            <th>Issued</th>
+            <th>Due</th>
+            <th>Return</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="l : ${activeLoans}">
+            <td><strong th:text="${l.equipment.name}">Projector</strong></td>
+            <td th:text="${l.studentName}">Student</td>
+            <td th:text="${l.registerNumber}">REG</td>
+            <td th:text="${l.issuedDate}">2026-01-01</td>
+            <td>
+              <span th:text="${l.dueDate}">2026-01-05</span>
+              <span class="badge badge-out" th:if="${l.dueDate.isBefore(today)}">Overdue</span>
+            </td>
+            <td>
+              <form th:action="@{/admin/loans/{id}/return(id=${l.id})}" method="post">
+                <button type="submit" class="button button-small">Return</button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(activeLoans)}">
+            <td colspan="6" class="empty">No equipment currently on loan.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+</body>
+</html>

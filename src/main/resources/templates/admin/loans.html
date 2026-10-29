@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Active Loans')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('loans')}"></header>
+
+<main class="container">
+  <h1>Active Equipment Loans</h1>
+  <p class="subtitle">Currently checked-out equipment across all students</p>
+
+  <div class="alert alert-ok" th:if="${message}" th:text="${message}"></div>
+  <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Loan ID</th>
+          <th>Equipment</th>
+          <th>Student</th>
+          <th>Register No.</th>
+          <th>Issued</th>
+          <th>Due</th>
+          <th>Return Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="l : ${loans}">
+          <td th:text="'#' + ${l.id}">#1</td>
+          <td><strong th:text="${l.equipment.name}">Projector</strong></td>
+          <td th:text="${l.studentName}">Student</td>
+          <td th:text="${l.registerNumber}">REG</td>
+          <td th:text="${l.issuedDate}">2026-01-01</td>
+          <td>
+            <span th:text="${l.dueDate}">2026-01-05</span>
+            <span class="badge badge-out" th:if="${l.dueDate.isBefore(today)}">Overdue</span>
+          </td>
+          <td>
+            <form th:action="@{/admin/loans/{id}/return(id=${l.id})}" method="post">
+              <button type="submit" class="button button-small">Record Return</button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(loans)}">
+          <td colspan="7" class="empty">No equipment currently on loan.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

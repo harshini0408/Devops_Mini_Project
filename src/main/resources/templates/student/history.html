@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('My Borrowing History')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('history')}"></header>
+
+<main class="container">
+  <h1>My Borrowing History</h1>
+  <p class="subtitle">Complete record of your returned equipment items</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Loan ID</th>
+          <th>Equipment Item</th>
+          <th>Issued Date</th>
+          <th>Due Date</th>
+          <th>Returned Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="l : ${loans}">
+          <td th:text="'#' + ${l.id}">#1</td>
+          <td th:text="${l.equipment.name}">Projector</td>
+          <td th:text="${l.issuedDate}">2026-01-01</td>
+          <td th:text="${l.dueDate}">2026-01-05</td>
+          <td><strong th:text="${l.returnedDate}">2026-01-04</strong></td>
+          <td><span class="badge badge-ok">Returned</span></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(loans)}">
+          <td colspan="6" class="empty">No completed loan history found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>
