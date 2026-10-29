@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' · BorrowDesk'">BorrowDesk</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header th:fragment="nav(active)" class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" th:href="@{/}">BorrowDesk</a>
+    <nav>
+      <a th:href="@{/}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
+      <a th:href="@{/equipment}" th:classappend="${active == 'equipment'} ? 'active'">Equipment</a>
+      <a th:href="@{/issue}" th:classappend="${active == 'issue'} ? 'active'">Issue</a>
+      <a th:href="@{/loans}" th:classappend="${active == 'loans'} ? 'active'">Active loans</a>
+      <a th:href="@{/history}" th:classappend="${active == 'history'} ? 'active'">History</a>
+    </nav>
+  </div>
+</header>
+</body>
+</html>

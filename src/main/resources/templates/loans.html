@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Active loans')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('loans')}"></header>
+<main class="container">
+  <h1>Active loans</h1>
+  <div class="alert alert-ok" th:if="${message}" th:text="${message}"></div>
+  <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Equipment</th><th>Student</th><th>Register no.</th><th>Issued</th><th>Due</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr th:each="l : ${loans}">
+          <td th:text="${l.equipment.name}">Projector</td>
+          <td th:text="${l.studentName}">Name</td>
+          <td th:text="${l.registerNumber}">REG</td>
+          <td th:text="${l.issuedDate}">2026-01-01</td>
+          <td>
+            <span th:text="${l.dueDate}">2026-01-02</span>
+            <span class="badge badge-out" th:if="${l.dueDate.isBefore(today)}">Overdue</span>
+          </td>
+          <td>
+            <form th:action="@{/loans/{id}/return(id=${l.id})}" method="post">
+              <button type="submit" class="button button-small">Return</button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(loans)}"><td colspan="6" class="empty">No active loans.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('dashboard')}"></header>
+<main class="container">
+  <h1>Dashboard</h1>
+  <div class="cards">
+    <a class="card" th:href="@{/equipment}">
+      <span class="card-number" th:text="${equipmentCount}">0</span>
+      <span class="card-label">Equipment types</span>
+    </a>
+    <a class="card" th:href="@{/loans}">
+      <span class="card-number" th:text="${activeLoanCount}">0</span>
+      <span class="card-label">Active loans</span>
+    </a>
+  </div>
+  <p><a class="button" th:href="@{/issue}">Issue equipment</a></p>
+</main>
+</body>
+</html>

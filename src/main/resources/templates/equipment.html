@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Equipment')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('equipment')}"></header>
+<main class="container">
+  <h1>Equipment</h1>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th class="num">Total</th><th class="num">Available</th></tr></thead>
+      <tbody>
+        <tr th:each="s : ${stock}">
+          <td th:text="${s.name}">Projector</td>
+          <td class="num" th:text="${s.totalQuantity}">3</td>
+          <td class="num">
+            <span class="badge" th:classappend="${s.available == 0} ? 'badge-out' : 'badge-ok'"
+                  th:text="${s.available}">3</span>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(stock)}"><td colspan="3" class="empty">No equipment yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Issue equipment')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('issue')}"></header>
+<main class="container narrow">
+  <h1>Issue equipment</h1>
+  <form th:action="@{/issue}" th:object="${form}" method="post" class="form" novalidate>
+    <div class="alert alert-error" th:if="${#fields.hasGlobalErrors()}">
+      <p th:each="e : ${#fields.globalErrors()}" th:text="${e}">Error</p>
+    </div>
+
+    <label for="studentName">Student name</label>
+    <input id="studentName" type="text" th:field="*{studentName}" maxlength="100" required>
+    <p class="field-error" th:if="${#fields.hasErrors('studentName')}" th:errors="*{studentName}"></p>
+
+    <label for="registerNumber">Register number</label>
+    <input id="registerNumber" type="text" th:field="*{registerNumber}" maxlength="30" required>
+    <p class="field-error" th:if="${#fields.hasErrors('registerNumber')}" th:errors="*{registerNumber}"></p>
+
+    <label for="equipmentId">Equipment</label>
+    <select id="equipmentId" th:field="*{equipmentId}" required>
+      <option value="">Select equipment…</option>
+      <option th:each="s : ${stock}" th:value="${s.id}" th:disabled="${s.available == 0}"
+              th:text="${s.name + ' (' + s.available + ' available)'}">Projector</option>
+    </select>
+    <p class="field-error" th:if="${#fields.hasErrors('equipmentId')}" th:errors="*{equipmentId}"></p>
+
+    <label for="dueDate">Due date</label>
+    <input id="dueDate" type="date" th:field="*{dueDate}" required>
+    <p class="field-error" th:if="${#fields.hasErrors('dueDate')}" th:errors="*{dueDate}"></p>
+
+    <button type="submit" class="button">Issue</button>
+  </form>
+</main>
+</body>
+</html>
